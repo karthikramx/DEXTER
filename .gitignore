@@ -1,0 +1,4 @@
+/backup
+audio/*
+/venv
+.env
