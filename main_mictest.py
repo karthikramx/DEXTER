@@ -1,6 +1,3 @@
-# whisper push to talk (spacebar)
-# Command to run: sudo python whisper_push_to_talk.py --device_index 2 --rate 48000 --channel 1 --model 'tiny.en' 
-# If you are on Mac: list the audio devices -> system_profiler SPAudioDataType 
 import os
 from dotenv import load_dotenv
 from deepgram import Deepgram
