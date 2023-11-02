@@ -30,7 +30,7 @@ DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 
 deepgram = Deepgram(DEEPGRAM_API_KEY)
-openai.api_key = "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"
+openai.api_key = OPEN_API_KEY
 
 
 
