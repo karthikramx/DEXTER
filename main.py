@@ -1,17 +1,18 @@
-import os
+from elevenlabs import generate, play
+from datetime import datetime as time
 from dotenv import load_dotenv
 from deepgram import Deepgram
-import asyncio, json
-import sounddevice as sd
 from scipy.io import wavfile
+import sounddevice as sd
+import asyncio, json
 import numpy as np
-from datetime import datetime as time
 import argparse
 import keyboard
 import warnings
+import openai
+import os
+
 warnings.filterwarnings("ignore")
-
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--devices', default='False', type=str, help='print all available devices id')
@@ -26,7 +27,12 @@ load_dotenv()
 
 # Your Deepgram API Key
 DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+OPEN_API_KEY = os.getenv("OPEN_API_KEY")
+
 deepgram = Deepgram(DEEPGRAM_API_KEY)
+openai.api_key = "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"
+
+
 
 
 frames = []
@@ -40,8 +46,7 @@ async def get_transcription(filename):
         source = { 'buffer': audio, 'mimetype': 'audio/wav' }
         transcription_options = { 'punctuate': True }
         response = await deepgram.transcription.prerecorded(source, transcription_options)
-        print(response["results"]["channels"][0]["alternatives"][0]["transcript"])
-
+        return response["results"]["channels"][0]["alternatives"][0]["transcript"]
 
 def main():
     global frames
@@ -78,8 +83,31 @@ def main():
 
                 sd.wait()
                 wavfile.write(f"./audio/audio{index}.wav", rate=rate, data=recording)
-                asyncio.run(get_transcription(f"./audio/audio{index}.wav"))
+                text = asyncio.run(get_transcription(f"./audio/audio{index}.wav"))
                 
+                print("Transcription:",text)
+
+                completion = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are an assistant."},
+                        {"role": "user", "content": text}
+                    ]
+                )
+
+                gptResponse = completion.choices[0].message['content']
+
+                print("GPT Response:",gptResponse)
+
+                audio = generate(
+                    text=gptResponse,
+                    voice="Bella",
+                    model="eleven_multilingual_v2"
+                    )
+
+                print("Playing audio...")
+                play(audio)
+
                 index += 1
         except Exception as e:
             print("Exception:",e)
