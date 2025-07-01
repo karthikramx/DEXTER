@@ -17,11 +17,10 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser()
 parser.add_argument('--devices', default='False', type=str, help='print all available devices id')
 parser.add_argument('--model', type=str, choices=['tiny','tiny.en', 'small', 'small.en', 'medium', 'medium.en', 'large'], default='small', help='model to be use for generating audio transcribe')
-parser.add_argument('--device_index', default= 2, type=int, help='the id of the device ')
-parser.add_argument('--channel', default= 1, type=int, help='number of channels for the device')
+parser.add_argument('--device_index', default= 1, type=int, help='the id of the device ')
+parser.add_argument('--channel', default= 0, type=int, help='number of channels for the device')
 parser.add_argument('--rate', default= 44100, type=int, help="polling rate of the output device")
 args = parser.parse_args()
-
 
 load_dotenv()
 
@@ -31,9 +30,6 @@ OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 
 deepgram = Deepgram(DEEPGRAM_API_KEY)
 openai.api_key = OPEN_API_KEY
-
-
-
 
 frames = []
 
@@ -113,9 +109,15 @@ def main():
             print("Exception:",e)
             pass
 
+def get_device_id():
+    devices = sd.query_devices()
+    for i, device in enumerate(devices):
+        print(i, device['name'])
+    device_id = int(input("Please enter the device id: "))
+    return device_id
 
 if __name__ == '__main__':
-    main()
+    main()        
 
 
 
